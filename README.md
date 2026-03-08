@@ -39,7 +39,7 @@ conda update conda
 
 ## Crear enviroment para el modelo
 ~~~~
-~~conda~~ create --name fede-model-env1 python=3.13
+conda create --name fede-model-env1 python=3.13
 ~~~~
 
 ## Activar el enviroment
@@ -108,4 +108,3 @@ conda activate fede-model-env1
 cd  ruta del modelo : pmai-model-vision
 python utils/yolo_detect.py --model my_model/my_model.pt --source 0 --resolution 1280x720
 ~~~~
-
