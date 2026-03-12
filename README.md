@@ -39,7 +39,7 @@ conda update conda
 
 ## Crear enviroment para el modelo
 ~~~~
-~~conda~~ create --name fede-model-env1 python=3.13
+conda create --name fede-model-env1 python=3.13
 ~~~~
 
 ## Activar el enviroment
