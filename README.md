@@ -75,6 +75,8 @@ sudo docker run -d --name label-studio \
 
 ~~~~
 
+sudo docker start label-studio
+
 ## Instalar dependencias dentro del enviroment
 ~~~~
 conda activate fede-model-env1
