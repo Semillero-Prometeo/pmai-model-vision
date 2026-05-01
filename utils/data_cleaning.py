@@ -29,7 +29,7 @@ def clean_corrupt_labels(labels_path, images_path):
                     valid = False
                     break
                 try:
-                    cls, x, y, w, h = map[float](parts)
+                    cls, x, y, w, h = map(float, parts)
                     if not (0 <= x <= 1 and 0 <= y <= 1 and 0 <= w <= 1 and 0 <= h <= 1):
                         valid = False
                         break
