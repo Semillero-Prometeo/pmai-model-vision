@@ -1,14 +1,30 @@
-path: data
+path: data_preprocessed
 train: train/images
 val: validation/images
-nc: 9
+nc: 25
 names:
+- Alison Segura
+- Alison Tinoco
 - Andrea Lopez
 - Anyi Becerra
+- Ashly Aguirre
+- Brayan Gomez
+- Breiner Bonilla
+- "Carlos \xC1ngulo"
 - Cristhian Tapiero
 - Daniela Fierro
-- "Diego Pati\xC3\xB1o"
+- "Diego Pati\xF1o"
+- Evelin Sanchez
+- Jeferson Castellanos
 - Johel Arias
+- Juan Toro
+- Karol Zubieta
+- "Laura Bar\xF3n"
+- Laura Perez
 - Marcela Cifuentes
 - Mauricio Alonso
-- "Pablo Carre\xC3\xB1o"
+- "Pablo Carre\xF1o"
+- Rodrigo Castro
+- "Sara C\xE1rdenas"
+- Valery Guerrero
+- Valery Guzman

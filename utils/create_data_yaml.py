@@ -30,27 +30,30 @@ def create_data_yaml(path_to_classes_txt, path_to_data_yaml):
   return
 
 
-def create_data_yaml_from_set_and_classes(path_to_set_yaml: str, path_to_classes_txt: str, path_to_data_yaml: str):
-  # Read classes from set data.yaml if it exists; otherwise, fall back to only custom classes
+def create_data_yaml_from_set_and_classes(
+  path_to_set_yaml: str, path_to_classes_txt: str, path_to_data_yaml: str
+):
   set_names: List[str] = []
   if os.path.exists(path_to_set_yaml):
-    with open(path_to_set_yaml, 'r') as f:
+    with open(path_to_set_yaml, "r") as f:
       set_yaml = yaml.safe_load(f) or {}
-    names_candidate = set_yaml.get('names', []) or []
+    names_candidate = set_yaml.get("names", []) or []
     if isinstance(names_candidate, list):
       set_names = names_candidate
     else:
-      print('Invalid names list in set data.yaml; proceeding with custom classes only')
+      print(
+          "Invalid names list in set data.yaml; proceeding with custom classes only"
+      )
 
   custom_names: List[str] = []
   if os.path.exists(path_to_classes_txt):
-    with open(path_to_classes_txt, 'r') as f:
+    with open(path_to_classes_txt, "r") as f:
       for line in f.readlines():
         line = line.strip()
         if line:
           custom_names.append(line)
   else:
-    print(f'classes.txt not found at {path_to_classes_txt}')
+    print(f"classes.txt not found at {path_to_classes_txt}")
 
   final_names: List[str] = []
   seen = set()
@@ -64,20 +67,24 @@ def create_data_yaml_from_set_and_classes(path_to_set_yaml: str, path_to_classes
       seen.add(n)
 
   if len(final_names) == 0:
-    print('No classes found in either set data.yaml or classes.txt; cannot create data.yaml')
+    print(
+      "No classes found in either set data.yaml or classes.txt; cannot create data.yaml"
+    )
     return None
 
   data = {
-      'path': 'data',
-      'train': 'train/images',
-      'val': 'validation/images',
-      'nc': len(final_names),
-      'names': final_names
+    "path": "data_preprocessed",
+    "train": "train/images",
+    "val": "validation/images",
+    "nc": len(final_names),
+    "names": final_names,
   }
 
-  with open(path_to_data_yaml, 'w') as f:
+  with open(path_to_data_yaml, "w") as f:
     yaml.dump(data, f, sort_keys=False)
 
-  print(f'Created config file at {path_to_data_yaml} from union of {path_to_set_yaml} and {path_to_classes_txt}')
+  print(
+    f"Created config file at {path_to_data_yaml} from union of {path_to_set_yaml} and {path_to_classes_txt}"
+  )
 
   return final_names
