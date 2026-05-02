@@ -1,10 +1,55 @@
 import cv2
 import os
 from pathlib import Path
+import ast
 
-def draw_bboxes(images_path, labels_path, output_path, max_images=200):
+
+def load_class_names(config_path="data.yaml"):
+    config_file = Path(config_path)
+    if not config_file.exists():
+        return []
+
+    names = []
+    in_names_block = False
+
+    with open(config_file, "r", encoding="utf-8") as f:
+        for raw_line in f:
+            line = raw_line.strip()
+
+            if line == "names:":
+                in_names_block = True
+                continue
+
+            if in_names_block:
+                if line.startswith("- "):
+                    value = line[2:].strip()
+                    if value.startswith(("'", '"')) and value.endswith(("'", '"')):
+                        try:
+                            value = ast.literal_eval(value)
+                        except (ValueError, SyntaxError):
+                            value = value.strip("'\"")
+                    names.append(value)
+                    continue
+
+                if line:
+                    break
+
+    return names
+
+
+def get_class_label(cls_id, class_names):
+    if cls_id.is_integer():
+        cls_index = int(cls_id)
+        if 0 <= cls_index < len(class_names):
+            return class_names[cls_index]
+        return str(cls_index)
+    return f"{cls_id:.2f}"
+
+
+def draw_bboxes(images_path, labels_path, output_path, class_names=None, max_images=200):
     output_path = Path(output_path)
     output_path.mkdir(parents=True, exist_ok=True)
+    class_names = class_names or []
 
     extensions = ["*.jpg", "*.jpeg", "*.png"]
     images = []
@@ -42,8 +87,9 @@ def draw_bboxes(images_path, labels_path, output_path, max_images=200):
             x2 = int((x + bw/2) * w)
             y2 = int((y + bh/2) * h)
 
+            class_label = get_class_label(cls, class_names)
             cv2.rectangle(img, (x1, y1), (x2, y2), (0,255,0), 2)
-            cv2.putText(img, "person", (x1, y1 - 5),
+            cv2.putText(img, class_label, (x1, y1 - 5),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0,255,0), 2)
 
         out_file = output_path / f"{img_path.stem}_preview.jpg"
@@ -56,8 +102,10 @@ def preview_labels(data_path):
     train_labels_path = os.path.join(data_path, "train", "labels")
     validation_images_path = os.path.join(data_path, "validation", "images")
     validation_labels_path = os.path.join(data_path, "validation", "labels")
-    
-    draw_bboxes(train_images_path, train_labels_path, "previews/preview_train")
 
-    draw_bboxes(validation_images_path, validation_labels_path, "previews/preview_val")
+    class_names = load_class_names("data.yaml")
+
+    draw_bboxes(train_images_path, train_labels_path, "previews/preview_train", class_names=class_names)
+
+    draw_bboxes(validation_images_path, validation_labels_path, "previews/preview_val", class_names=class_names)
 

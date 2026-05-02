@@ -216,3 +216,4 @@ data.zip
 *.zip
 dataset/set.zip
 previews/
+data_preprocessed/

@@ -58,7 +58,7 @@ def preprocess_image(img_path, output_path, size=512):
     img = apply_white_balance(img)
     img = apply_clahe(img)
     img = apply_gamma(img, gamma=1.0)
-    img = letterbox(img, new_size=size)
+    # img = letterbox(img, new_size=size)
 
     cv2.imwrite(str(output_path), img)
 
