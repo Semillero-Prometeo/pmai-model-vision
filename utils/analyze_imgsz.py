@@ -2,7 +2,10 @@ import os
 from pathlib import Path
 import statistics
 import math
+from collections import Counter
 from PIL import Image
+
+from utils.preview_labels import load_class_names
 
 
 def gather_bbox_stats(images_dir, labels_dir, sample_limit=None):
@@ -94,22 +97,64 @@ def recommend_imgsz(height_median):
         return "512 - 640 (recomendado 640)"
     return "416 - 640 (recomendado 512 o 416 si GPU limitada)"
 
+
+def count_labels_per_class(labels_dir):
+    """Cuenta líneas YOLO válidas (5 valores) por id de clase en todos los .txt."""
+    counter = Counter()
+    labels_path = Path(labels_dir)
+    if not labels_path.is_dir():
+        return counter
+
+    for lbl_file in labels_path.glob("*.txt"):
+        with open(lbl_file, "r", encoding="utf-8") as f:
+            for line in f:
+                parts = line.strip().split()
+                if len(parts) < 5:
+                    continue
+                try:
+                    cls_id = int(float(parts[0]))
+                except ValueError:
+                    continue
+                counter[cls_id] += 1
+    return counter
+
+
+def print_labels_per_class(title, counts, class_names):
+    print(f"\n--- Etiquetas por clase ({title}) ---")
+    if not counts:
+        print("Sin etiquetas.")
+        return
+    total = sum(counts.values())
+    for cls_id in sorted(counts.keys()):
+        if 0 <= cls_id < len(class_names):
+            name = class_names[cls_id]
+        else:
+            name = f"clase_{cls_id}"
+        print(f"  {name}: {counts[cls_id]}")
+    print(f"Total etiquetas: {total}")
+
+
 def analyze_imgsz():
     train_imgs = os.path.join("data", "train", "images")
     train_lbls = os.path.join("data", "train", "labels")
     val_imgs = os.path.join("data", "validation", "images")
     val_lbls = os.path.join("data", "validation", "labels")
 
+    class_names = load_class_names("data.yaml")
+
     print("Analizando TRAIN...")
     s_train = gather_bbox_stats(train_imgs, train_lbls)
-    
+    train_label_counts = count_labels_per_class(train_lbls)
+
     print("Analizando VALIDATION...")
     s_val = gather_bbox_stats(val_imgs, val_lbls)
+    val_label_counts = count_labels_per_class(val_lbls)
 
     sum_train = summarize_stats(s_train) if s_train else None
     sum_val = summarize_stats(s_val) if s_val else None
 
     print("\n--- RESULTADOS TRAIN ---")
+    print_labels_per_class("TRAIN", train_label_counts, class_names)
     if sum_train:
         for k,v in sum_train.items():
             print(f"{k}: {v}")
@@ -118,6 +163,7 @@ def analyze_imgsz():
         print("No se encontraron bboxes en TRAIN.")
 
     print("\n--- RESULTADOS VALIDATION ---")
+    print_labels_per_class("VALIDATION", val_label_counts, class_names)
     if sum_val:
         for k,v in sum_val.items():
             print(f"{k}: {v}")
